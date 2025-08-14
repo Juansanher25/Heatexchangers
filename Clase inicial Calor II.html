@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Module: Heat Exchangers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f9ff; /* Light blue background */
+        }
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .content-section.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        .nav-link.active {
+            background-color: #e0f2fe;
+            border-left-color: #0ea5e9;
+            color: #0c4a6e;
+            font-weight: 600;
+        }
+        .nav-link:hover {
+            background-color: #f0f9ff;
+            border-left-color: #7dd3fc;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .quiz-option.correct {
+            background-color: #dcfce7;
+            border-color: #22c55e;
+            color: #15803d;
+        }
+        .quiz-option.incorrect {
+            background-color: #fee2e2;
+            border-color: #ef4444;
+            color: #b91c1c;
+        }
+        .equation {
+            font-family: 'Times New Roman', serif;
+            font-size: 1.25rem;
+            margin: 1rem 0;
+            padding: 1.5rem;
+            background-color: #f1f5f9;
+            border-left: 4px solid #6366f1;
+            border-radius: 0.25rem;
+        }
+        /* Flow Animation Styles */
+        .flow-diagram {
+            position: relative;
+            height: 120px;
+            background-color: #f3f4f6;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+        .pipe {
+            position: absolute;
+            left: 5%;
+            width: 90%;
+            background-color: #e5e7eb;
+            border: 2px solid #d1d5db;
+        }
+        .pipe-hot { top: 25%; height: 20px; }
+        .pipe-cold { bottom: 25%; height: 20px; }
+        .fluid {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 10%;
+            border-radius: 0.25rem;
+            opacity: 0.9;
+        }
+        .fluid-hot { background: linear-gradient(90deg, #ef4444, #f87171); animation: flow-right 5s linear infinite; }
+        .fluid-cold { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+        .parallel { animation: flow-right 5s linear infinite; }
+        .counter { animation: flow-left 5s linear infinite; }
+
+        @keyframes flow-right { 0% { transform: translateX(0%); } 100% { transform: translateX(900%); } }
+        @keyframes flow-left { 0% { transform: translateX(900%); } 100% { transform: translateX(0%); } }
+    </style>
+</head>
+<body>
+
+    <div class="min-h-screen lg:flex">
+        <!-- Sidebar Navigation -->
+        <nav class="w-full lg:w-72 bg-white shadow-lg lg:fixed lg:h-full">
+            <div class="p-6 bg-gradient-to-br from-sky-500 to-indigo-600 text-white">
+                <h1 class="text-2xl font-bold">Heat Transfer II</h1>
+                <p class="text-sm text-sky-200">Interactive Learning Module</p>
+            </div>
+            <ul class="mt-4" id="nav-menu">
+                <li><a href="#" data-target="introduction" class="nav-link active py-4 px-6">🔥 Introduction</a></li>
+                <li><a href="#" data-target="history" class="nav-link py-4 px-6">📜 History</a></li>
+                <li><a href="#" data-target="concepts" class="nav-link py-4 px-6">🌊 Flow Concepts</a></li>
+                <li><a href="#" data-target="types" class="nav-link py-4 px-6">⚙️ Exchanger Types</a></li>
+                <li><a href="#" data-target="comparison" class="nav-link py-4 px-6">📊 Comparison Table</a></li>
+                <li><a href="#" data-target="applications" class="nav-link py-4 px-6">🌍 Real-World Applications</a></li>
+                <li><a href="#" data-target="related_equipment" class="nav-link py-4 px-6">🏭 Related Equipment</a></li>
+                <li><a href="#" data-target="equations" class="nav-link py-4 px-6">🧮 Key Equations</a></li>
+                <li><a href="#" data-target="quiz" class="nav-link py-4 px-6">🧠 Knowledge Check</a></li>
+                <li><a href="#" data-target="references" class="nav-link py-4 px-6">📚 References</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="w-full lg:ml-72 p-4 sm:p-6 md:p-8">
+            <!-- Presentation Header -->
+            <header class="mb-8 p-6 rounded-xl bg-gradient-to-r from-gray-700 via-gray-900 to-black text-white shadow-2xl">
+                <h2 class="text-3xl font-extrabold tracking-tight">Introduction to Heat Exchangers</h2>
+                <p class="mt-1 text-lg text-gray-300">Presented by: Juan Sandoval Herrera, Ph.D.</p>
+                <p class="text-md text-gray-400">Universidad de América - 2025</p>
+            </header>
+
+            <!-- Introduction Section -->
+            <section id="introduction" class="content-section active">
+                <div class="card p-8">
+                    <h3 class="text-2xl font-bold mb-4 text-sky-800">What is a Heat Exchanger?</h3>
+                    <p class="text-lg mb-4">A <strong>heat exchanger</strong> is a device engineered to efficiently transfer thermal energy from one fluid to another without them mixing. The barrier that separates them is the heart of the process.</p>
+                    <div class="grid md:grid-cols-2 gap-6 mt-6">
+                        <div class="bg-rose-50 p-4 rounded-lg border-l-4 border-rose-400">
+                            <h4 class="font-bold text-rose-800">Why are they critical?</h4>
+                            <ul class="list-disc list-inside mt-2 space-y-1 text-rose-700">
+                                <li>Energy conservation & waste heat recovery.</li>
+                                <li>Precise temperature control for processes.</li>
+                                <li>Core of HVAC, refrigeration, and power generation.</li>
+                            </ul>
+                        </div>
+                        <div class="flex items-center justify-center">
+                            <img src="https://raw.githubusercontent.com/Juansanher25/Heattransfer/d8c8d3329272bab8b6a749171e4955a764ee0b78/INTERCAMBIADORES%20DE%20CALOR.jpg" alt="Heat Exchangers Collage" class="rounded-lg shadow-md max-h-48" onerror="this.onerror=null;this.src='https://placehold.co/400x200/0ea5e9/ffffff?text=Heat+Exchangers';">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- History Section -->
+            <section id="history" class="content-section">
+                <div class="card p-8">
+                    <h3 class="text-2xl font-bold mb-4 text-amber-800">A Look Through History</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <span class="text-xl mr-4">🏛️</span>
+                            <div><strong class="text-amber-700">Ancient Times:</strong> The Romans used hypocaust systems—pipes in walls—to heat buildings, an early precursor.</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-xl mr-4">🚂</span>
+                            <div><strong class="text-amber-700">18th Century:</strong> James Watt's steam engine (1776) featured a separate condenser, a pivotal industrial application.</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-xl mr-4">🏭</span>
+                            <div><strong class="text-amber-700">19th Century:</strong> The Industrial Revolution drove the development of more efficient boilers and condensers.</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-xl mr-4">🥛</span>
+                            <div><strong class="text-amber-700">20th Century:</strong> Dr. Richard Seligman invented the plate heat exchanger in 1923, revolutionizing the food and dairy industries.</div>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Basic Concepts Section -->
+            <section id="concepts" class="content-section">
+                 <div class="card p-8">
+                    <h3 class="text-2xl font-bold mb-6 text-indigo-800">Flow Arrangements</h3>
+                    <div class="space-y-8">
+                        <div>
+                            <h4 class="text-xl font-semibold mb-2">1. Parallel Flow</h4>
+                            <p class="mb-4">Both fluids enter at the same end and flow in the same direction. Simple, but less efficient due to a decreasing temperature difference.</p>
+                            <div class="flow-diagram">
+                                <div class="pipe pipe-hot"><div class="fluid fluid-hot"></div></div>
+                                <div class="pipe pipe-cold"><div class="fluid fluid-cold parallel"></div></div>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-semibold mb-2">2. Counter Flow</h4>
+                            <p class="mb-4">Fluids enter at opposite ends and flow in opposite directions. This is the most efficient arrangement, maintaining a more uniform temperature difference.</p>
+                            <div class="flow-diagram">
+                                <div class="pipe pipe-hot"><div class="fluid fluid-hot"></div></div>
+                                <div class="pipe pipe-cold"><div class="fluid fluid-cold counter"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Types Section -->
+            <section id="types" class="content-section">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="card p-6 flex flex-col">
+                        <h4 class="text-xl font-bold mb-2">Shell & Tubes</h4>
+                        <img src="https://raw.githubusercontent.com/Juansanher25/Heattransfer/4a1c07d7faeeb98a454d04bbd751a3e4d280351d/Coraza%20y%20tubos%20de%20dos%20corazas.jpg" alt="Shell and Tubes" class="w-full h-48 object-contain rounded-md mb-4" onerror="this.onerror=null;this.src='https://placehold.co/400x200/ef4444/ffffff?text=Shell+and+Tubes';">
+                        <p class="mt-auto">The industry workhorse. Robust, handles high pressures/temps. Less compact.</p>
+                    </div>
+                    <div class="card p-6 flex flex-col">
+                        <h4 class="text-xl font-bold mb-2">Plate & Frame</h4>
+                        <img src="https://github.com/Juansanher25/Heattransfer/blob/main/Plate%20heat%20exchanger.png?raw=true" alt="Plate and Frame" class="w-full h-48 object-contain rounded-md mb-4" onerror="this.onerror=null;this.src='https://placehold.co/400x200/3b82f6/ffffff?text=Plate+and+Frame';">
+                        <p class="mt-auto">Highly efficient and compact. Flexible capacity but limited by gaskets.</p>
+                    </div>
+                    <div class="card p-6 flex flex-col">
+                        <h4 class="text-xl font-bold mb-2">Double Pipe</h4>
+                        <img src="https://github.com/Juansanher25/Heattransfer/blob/main/Double%20tube%20heat%20exchanger.jpg?raw=true" alt="Double Pipe" class="w-full h-48 object-contain rounded-md mb-4" onerror="this.onerror=null;this.src='https://placehold.co/400x200/10b981/ffffff?text=Double+Pipe';">
+                        <p class="mt-auto">Simplest form. Low cost, good for small duties and high pressures.</p>
+                    </div>
+                    <div class="card p-6 flex flex-col">
+                        <h4 class="text-xl font-bold mb-2">Cross-Flow</h4>
+                        <img src="https://github.com/Juansanher25/Heattransfer/blob/main/Crossflow%20HE.png?raw=true" alt="Cross-Flow" class="w-full h-48 object-contain rounded-md mb-4" onerror="this.onerror=null;this.src='https://placehold.co/400x200/f97316/ffffff?text=Cross-Flow';">
+                        <p class="mt-auto">Fluids flow perpendicularly. Common in gas-liquid applications like radiators.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Comparison Section -->
+            <section id="comparison" class="content-section">
+                <div class="card p-6 overflow-x-auto">
+                    <h3 class="text-2xl font-bold mb-4">Quick Comparison</h3>
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="p-3 font-semibold text-sm">Feature</th>
+                                <th class="p-3 font-semibold text-sm">Shell & Tubes</th>
+                                <th class="p-3 font-semibold text-sm">Plate & Frame</th>
+                                <th class="p-3 font-semibold text-sm">Double Pipe</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b">
+                                <td class="p-3 font-medium">Efficiency</td>
+                                <td class="p-3">Moderate</td>
+                                <td class="p-3"><span class="font-bold text-green-600">Very High</span></td>
+                                <td class="p-3"><span class="text-red-600">Low</span></td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-3 font-medium">Size</td>
+                                <td class="p-3"><span class="text-red-600">Large</span></td>
+                                <td class="p-3"><span class="font-bold text-green-600">Compact</span></td>
+                                <td class="p-3"><span class="text-red-600">Very Large (for duty)</span></td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-3 font-medium">Pressure Limit</td>
+                                <td class="p-3"><span class="font-bold text-green-600">Very High</span></td>
+                                <td class="p-3"><span class="text-red-600">Low-Moderate</span></td>
+                                <td class="p-3"><span class="font-bold text-green-600">Very High</span></td>
+                            </tr>
+                             <tr>
+                                <td class="p-3 font-medium">Best For</td>
+                                <td class="p-3">High P/T, Oil & Gas</td>
+                                <td class="p-3">High efficiency, Food, HVAC</td>
+                                <td class="p-3">Small duties, low cost</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Applications Section -->
+            <section id="applications" class="content-section">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="card p-6">
+                        <h4 class="text-xl font-bold mb-2">⚡ Power Generation</h4>
+                        <img src="https://github.com/Juansanher25/Heattransfer/blob/main/Power_Plant.jpg?raw=true" alt="Power Generation Plant" class="w-full h-40 object-cover rounded-md my-4" onerror="this.onerror=null;this.src='https://placehold.co/400x200/f472b6/ffffff?text=Power+Plant';">
+                        <p>Massive Shell & Tubes exchangers condense steam from turbines in power plants.</p>
+                    </div>
+                    <div class="card p-6">
+                        <h4 class="text-xl font-bold mb-2">🥛 Food & Beverage</h4>
+                        <img src="https://github.com/Juansanher25/Heattransfer/blob/main/Food%20and%20beverage%20industry.JPG?raw=true" alt="Food Pasteurization" class="w-full h-40 object-cover rounded-md my-4" onerror="this.onerror=null;this.src='https://placehold.co/400x200/a3e635/ffffff?text=Pasteurization';">
+                        <p>Plate & Frame units are perfect for pasteurization due to their rapid, precise heating.</p>
+                    </div>
+                    <div class="card p-6">
+                        <h4 class="text-xl font-bold mb-2">🚗 Automotive Radiators</h4>
+                        <img src="https://github.com/Juansanher25/Heattransfer/blob/main/Rdiator.png?raw=true" alt="Car Radiator" class="w-full h-40 object-cover rounded-md my-4" onerror="this.onerror=null;this.src='https://placehold.co/400x200/9ca3af/ffffff?text=Car+Radiator';">
+                        <p>A classic Cross-Flow application, where air cools engine fluid.</p>
+                    </div>
+                    <div class="card p-6">
+                        <h4 class="text-xl font-bold mb-2">🏠 HVAC Systems</h4>
+                        <img src="https://github.com/Juansanher25/Heattransfer/blob/main/HVAC%20System.jpg?raw=true" alt="HVAC Unit" class="w-full h-40 object-cover rounded-md my-4" onerror="this.onerror=null;this.src='https://placehold.co/400x200/60a5fa/ffffff?text=HVAC+Unit';">
+                        <p>Cross-Flow coils are used in AC units, while Plate exchangers are used in large buildings.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Related Equipment Section -->
+            <section id="related_equipment" class="content-section">
+                <div class="card p-8">
+                    <h3 class="text-2xl font-bold mb-4 text-teal-800">Beyond Exchangers: Related Equipment</h3>
+                    <p class="mb-6">These devices also manage thermal energy, often involving phase change or direct contact.</p>
+                    <div class="md:flex gap-6 items-start">
+                        <div class="md:w-2/3 space-y-4">
+                            <p><strong>Evaporators / Boilers:</strong> Designed specifically to boil a liquid into a vapor.</p>
+                            <p><strong>Condensers:</strong> The opposite of evaporators; designed to condense a vapor into a liquid.</p>
+                            <p><strong>Cooling Towers:</strong> Cool large volumes of water through direct contact with air, causing some water to evaporate and carry heat away.</p>
+                            <p><strong>Chillers:</strong> Complete refrigeration systems that cool a liquid (like water) for use in AC or industrial processes.</p>
+                        </div>
+                        <div class="md:w-1/3 mt-6 md:mt-0">
+                            <img src="https://github.com/Juansanher25/Heattransfer/blob/main/Cooling_tower.jpg?raw=true" alt="Cooling Tower" class="w-full rounded-lg shadow-md" onerror="this.onerror=null;this.src='https://placehold.co/400x300/2dd4bf/ffffff?text=Cooling+Tower';">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Equations Section -->
+            <section id="equations" class="content-section">
+                 <div class="card p-8">
+                    <h3 class="text-2xl font-bold mb-4 text-purple-800">Key Analysis Equations</h3>
+                    <div class="space-y-8">
+                        <div>
+                            <h4 class="text-xl font-semibold">1. Sensible Heat Rate</h4>
+                            <div class="equation">Q = m&#775; &middot; C<sub>p</sub> &middot; (T<sub>in</sub> - T<sub>out</sub>)</div>
+                            <ul class="list-disc list-inside ml-4 text-gray-700">
+                                <li><strong>Q</strong>: Tasa de transferencia de calor (W)</li>
+                                <li><strong>m&#775;</strong>: Flujo másico del fluido (kg/s)</li>
+                                <li><strong>C<sub>p</sub></strong>: Capacidad calorífica específica del fluido (J/kg&middot;K)</li>
+                                <li><strong>(T<sub>in</sub> - T<sub>out</sub>)</strong>: Diferencia de temperatura del fluido (&deg;C o K)</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-semibold">2. Overall Heat Transfer Rate</h4>
+                            <div class="equation">Q = U &middot; A &middot; &Delta;T<sub>lm</sub></div>
+                             <ul class="list-disc list-inside ml-4 text-gray-700">
+                                <li><strong>Q</strong>: Tasa de transferencia de calor (W)</li>
+                                <li><strong>U</strong>: Coeficiente global de transferencia de calor (W/m²&middot;K)</li>
+                                <li><strong>A</strong>: Área de transferencia de calor (m²)</li>
+                                <li><strong>&Delta;T<sub>lm</sub></strong>: Diferencia de Temperatura Media Logarítmica (K o &deg;C)</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-semibold">3. Log Mean Temperature Difference (LMTD)</h4>
+                            <div class="equation">&Delta;T<sub>lm</sub> = (&Delta;T<sub>1</sub> - &Delta;T<sub>2</sub>) / ln(&Delta;T<sub>1</sub> / &Delta;T<sub>2</sub>)</div>
+                             <ul class="list-disc list-inside ml-4 text-gray-700">
+                                <li><strong>&Delta;T<sub>1</sub>, &Delta;T<sub>2</sub></strong>: Diferencias de temperatura en los extremos del intercambiador (K o &deg;C)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quiz Section -->
+            <section id="quiz" class="content-section">
+                <div class="card p-8">
+                    <h3 class="text-2xl font-bold mb-6">Knowledge Check!</h3>
+                    <div id="quiz-container" class="space-y-8"></div>
+                    <div class="mt-8 flex justify-between items-center">
+                        <button id="submit-quiz" class="bg-sky-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-sky-700 transition-transform transform hover:scale-105">Submit</button>
+                        <div id="quiz-results" class="text-2xl font-bold"></div>
+                    </div>
+                    <div id="quiz-answers" class="mt-8 border-t pt-6" style="display: none;">
+                        <h4 class="text-xl font-bold mb-4">Detailed Answers</h4>
+                        <div id="answer-details" class="space-y-4 text-sm"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- References Section -->
+            <section id="references" class="content-section">
+                <div class="card p-8">
+                    <h3 class="text-2xl font-bold mb-4">References & Further Reading</h3>
+                    <ul class="space-y-4 text-sm">
+                        <li class="pl-4 border-l-4 border-gray-300">Bergman, T. L., et al. (2017). *Fundamentals of heat and mass transfer*. John Wiley & Sons.</li>
+                        <li class="pl-4 border-l-4 border-gray-300">Kakac, S., & Liu, H. (2002). *Heat exchangers: Selection, rating, and thermal design*. CRC Press.</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('.content-section');
+
+            document.getElementById('nav-menu').addEventListener('click', (e) => {
+                const navLink = e.target.closest('.nav-link');
+                if (navLink) {
+                    e.preventDefault();
+                    const targetId = navLink.getAttribute('data-target');
+
+                    sections.forEach(s => s.classList.remove('active'));
+                    navLinks.forEach(l => l.classList.remove('active'));
+
+                    document.getElementById(targetId).classList.add('active');
+                    navLink.classList.add('active');
+                }
+            });
+
+            const quizData = [
+                { question: "Which flow arrangement is most thermally efficient?", options: ["Parallel Flow", "Counter Flow", "Cross Flow"], answer: "Counter Flow" },
+                { question: "For food pasteurization, which type is most suitable?", options: ["Shell & Tubes", "Double Pipe", "Plate & Frame"], answer: "Plate & Frame" },
+                { question: "What is the main function of baffles in a Shell & Tubes exchanger?", options: ["Filter the fluid", "Direct shell-side flow & support tubes", "Reduce pressure"], answer: "Direct shell-side flow & support tubes" },
+                { question: "What does NTU stand for in heat exchanger analysis?", options: ["Net Temperature Utility", "New Thermal Unit", "Number of Transfer Units"], answer: "Number of Transfer Units" },
+                {
+                    question: "Calculate the required heat transfer area (A) in m² for a counter-flow shell & tubes exchanger. <br><strong>Given Data (Hot Fluid):</strong><br> m&#775; = 2 kg/s, C<sub>p</sub> = 4180 J/kg·K, T<sub>in</sub> = 90°C, T<sub>out</sub> = 70°C.<br><strong>Given Data (Cold Fluid):</strong><br>T<sub>in</sub> = 20°C, T<sub>out</sub> = 50°C.<br><strong>Overall:</strong> U = 1500 W/m²·K.",
+                    options: ["1.55 m²", "2.49 m²", "3.12 m²", "5.87 m²"],
+                    answer: "2.49 m²",
+                    isCalculation: true
+                }
+            ];
+
+            const quizContainer = document.getElementById('quiz-container');
+            const submitButton = document.getElementById('submit-quiz');
+            const resultsContainer = document.getElementById('quiz-results');
+            const answersContainer = document.getElementById('quiz-answers');
+            const answerDetailsContainer = document.getElementById('answer-details');
+
+            function buildQuiz() {
+                quizContainer.innerHTML = '';
+                resultsContainer.innerHTML = '';
+                answersContainer.style.display = 'none';
+                answerDetailsContainer.innerHTML = '';
+                submitButton.disabled = false;
+                
+                quizData.forEach((q, index) => {
+                    const questionBlock = document.createElement('div');
+                    questionBlock.innerHTML = `<p class="font-semibold mb-3">${index + 1}. ${q.question}</p>`;
+                    const optionsDiv = document.createElement('div');
+                    optionsDiv.className = 'space-y-2';
+                    q.options.forEach(option => {
+                        optionsDiv.innerHTML += `
+                            <label class="quiz-option block p-3 border rounded-lg cursor-pointer hover:bg-gray-100">
+                                <input type="radio" name="question${index}" value="${option}" class="mr-2">
+                                ${option}
+                            </label>`;
+                    });
+                    questionBlock.appendChild(optionsDiv);
+                    quizContainer.appendChild(questionBlock);
+                });
+            }
+
+            function showAnswers() {
+                answerDetailsContainer.innerHTML = '';
+                quizData.forEach((q, index) => {
+                    let detailHtml = `<div class="p-3 bg-gray-50 rounded-lg">
+                        <p class="font-semibold">Q${index + 1}: ${q.question.split('<br>')[0]}</p>
+                        <p class="text-green-700 font-bold">Correct Answer: ${q.answer}</p>`;
+                    
+                    if (q.isCalculation) {
+                        detailHtml += `<div class="mt-2 text-xs border-t pt-2" style="font-family: 'Times New Roman', serif; font-size: 1rem;">
+                            <p><strong>Step 1: Calculate Heat Rate (Q)</strong></p>
+                            <p>Q = m&#775; &middot; C<sub>p</sub> &middot; (T<sub>hot,in</sub> - T<sub>hot,out</sub>)</p>
+                            <p>Q = 2 kg/s &middot; 4180 J/kg&middot;K &middot; (90 - 70)K = 167,200 W</p>
+                            <p><strong>Step 2: Calculate LMTD (&Delta;T<sub>lm</sub>) for Counter-Flow</strong></p>
+                            <p>&Delta;T<sub>1</sub> = T<sub>hot,in</sub> - T<sub>cold,out</sub> = 90°C - 50°C = 40°C</p>
+                            <p>&Delta;T<sub>2</sub> = T<sub>hot,out</sub> - T<sub>cold,in</sub> = 70°C - 20°C = 50°C</p>
+                            <p>&Delta;T<sub>lm</sub> = (&Delta;T<sub>1</sub> - &Delta;T<sub>2</sub>) / ln(&Delta;T<sub>1</sub> / &Delta;T<sub>2</sub>) = (50 - 40) / ln(50 / 40) &approx; 44.82 °C</p>
+                            <p><strong>Step 3: Calculate Area (A)</strong></p>
+                            <p>A = Q / (U &middot; &Delta;T<sub>lm</sub>)</p>
+                            <p>A = 167,200 W / (1500 W/m²&middot;K &middot; 44.82 K) &approx; 2.49 m²</p>
+                        </div>`;
+                    }
+                    detailHtml += `</div>`;
+                    answerDetailsContainer.innerHTML += detailHtml;
+                });
+                answersContainer.style.display = 'block';
+            }
+
+            submitButton.addEventListener('click', () => {
+                let score = 0;
+                quizData.forEach((q, index) => {
+                    const selected = quizContainer.querySelector(`input[name="question${index}"]:checked`);
+                    const labels = quizContainer.querySelectorAll(`input[name="question${index}"]`);
+                    
+                    labels.forEach(labelInput => {
+                        const parentLabel = labelInput.parentElement;
+                        parentLabel.classList.remove('correct', 'incorrect');
+                        if (labelInput.value === q.answer) {
+                           parentLabel.classList.add('correct');
+                        }
+                    });
+
+                    if (selected) {
+                        if (selected.value === q.answer) {
+                            score++;
+                        } else {
+                            selected.parentElement.classList.add('incorrect');
+                        }
+                    }
+                });
+                resultsContainer.textContent = `Score: ${score}/${quizData.length}`;
+                resultsContainer.className = score === quizData.length ? 'text-2xl font-bold text-green-600' : 'text-2xl font-bold text-red-600';
+                submitButton.disabled = true;
+                showAnswers();
+            });
+
+            buildQuiz();
+        });
+    </script>
+</body>
+</html>
